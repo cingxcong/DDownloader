@@ -1,0 +1,6 @@
+colorama==0.4.6
+coloredlogs==15.0.1
+humanfriendly==10.0
+loguru==0.7.3
+pyreadline3==3.5.4
+win32_setctime==1.2.0
