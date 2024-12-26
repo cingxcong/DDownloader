@@ -8,7 +8,7 @@
 
 # Installation
 Use the package manager pip to install DDownloader.
-```pip install DDownloader==0.1.4```
+```pip install DDownloader```
 
 # Usage
 

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="DDownloader",
-    version="0.1.5",
+    version="0.1.6",
     description="A downloader for DRM-protected content.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
