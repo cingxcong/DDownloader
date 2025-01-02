@@ -1,11 +1,10 @@
 import os
 import subprocess
 import logging
-import platform  # For platform detection
+import platform
 import coloredlogs
 from colorama import Fore
 
-# Set up logging
 logger = logging.getLogger("+ DASH + ")
 coloredlogs.install(level='DEBUG', logger=logger)
 
@@ -13,7 +12,7 @@ class DASH:
     def __init__(self):
         self.manifest_url = None
         self.output_name = None
-        self.decryption_key = None  # Default to None, making it optional
+        self.decryption_keys = []  # Store multiple keys as a list
         self.binary_path = self._get_binary_path()
 
     def _get_binary_path(self):
@@ -23,9 +22,9 @@ class DASH:
         if platform.system() == 'Windows':
             binary = f"{base_path}.exe"
         elif platform.system() == 'Linux':
-            binary = base_path  # Linux binaries usually have no extension
-        elif platform.system() == 'Darwin':  # macOS
-            binary = base_path  # Adjust if necessary for macOS-specific binaries
+            binary = base_path
+        elif platform.system() == 'Darwin':
+            binary = base_path
         else:
             logger.error(f"Unsupported platform: {platform.system()}")
             raise OSError(f"Unsupported platform: {platform.system()}")
@@ -42,43 +41,34 @@ class DASH:
             return
         
         command = self._build_command()
-        
-        # logger.debug(f"Running command: {command}")
         self._execute_command(command)
 
     def _build_command(self):
-        # Build the basic command without extra quotes
         command = [
-            self.binary_path,              # Path to the binary
-            self.manifest_url,             # The manifest URL
+            self.binary_path,
+            self.manifest_url,
             '--auto-select',
             '-mt',
-            '--thread-count', '12',
+            '-M', 'format=mp4',
             '--save-dir', 'downloads',
             '--tmp-dir', 'downloads',
-            '--save-name', self.output_name  # The output name
+            '--save-name', self.output_name
         ]
-        
-        # Only add decryption_key if it's provided
-        if self.decryption_key:
-            logger.debug(f"Decryption key provided: {self.decryption_key}")
-            command.append(f'--key {self.decryption_key}')  # Ensure correct format: KID:KEY
-        
-        # Join the command as a single string for system execution
-        command_str = ' '.join(command)
-        # logger.debug(f"Command string: {command_str}")
-        
-        return command_str
+        for key in self.decryption_keys:
+            command.extend(['--key', key])
+        logger.debug(f"Built command: {' '.join(command)}")
+        return command
 
     def _execute_command(self, command):
         try:
-            # Use os.system to run the command as a string
-            result = os.system(command)
-            
-            if result == 0:
+            result = subprocess.run(command, check=True)
+            if result.returncode == 0:
                 logger.info("Downloaded using N_m3u8DL-RE successfully.")
             else:
-                logger.error(f"Download failed with result code: {result}")
+                logger.error(f"Download failed with result code: {result.returncode}")
 
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Command failed: {e}")
+            raise RuntimeError(f"Download process failed: {e}")
         except Exception as e:
             logger.error(f"An unexpected error occurred: {e}")
