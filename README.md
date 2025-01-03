@@ -39,6 +39,10 @@ hls_downloader.hls_downloader()  # Call the downloader method
 ```bash
   DDownloader -h
 ```
-![image](https://github.com/user-attachments/assets/52eb4152-9b50-4bf1-ac4d-2544ba3497a6)
 
-# THIS PROJECT STILL IN DEVELOPMENT
+- ![image](https://github.com/user-attachments/assets/5abdee78-2bb3-45be-b784-c8de86dac237)
+
+
+## THIS PROJECT STILL IN DEVELOPMENT
+
+- Contributions are welcome! Feel free to open issues, create pull requests, or provide suggestions.
