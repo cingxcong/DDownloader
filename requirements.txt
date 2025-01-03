@@ -4,3 +4,5 @@ humanfriendly
 loguru
 pyreadline3
 win32_setctime
+tqdm
+requests

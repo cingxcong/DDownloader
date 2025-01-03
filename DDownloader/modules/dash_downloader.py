@@ -17,13 +17,24 @@ class DASH:
         self.binary_path = self._get_binary_path()
 
     def _get_binary_path(self):
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        bin_dir = os.path.join(base_dir, 'bin')
+        """
+        Dynamically determine the path to the binary file in the 'bin' directory relative to the main module.
+        """
+        # Locate the base directory for the project (relative to main.py)
+        base_dir = os.path.dirname(os.path.abspath(__file__))  # Directory containing the current module
+        project_root = os.path.dirname(base_dir)  # Go up one level to the project root
+        bin_dir = os.path.join(project_root, 'bin')  # Bin directory is under the project root
+
+        # Determine the binary file name based on the platform
         binary_name = 'N_m3u8DL-RE.exe' if platform.system() == 'Windows' else 'N_m3u8DL-RE'
         binary = os.path.join(bin_dir, binary_name)
+
+        # Check if the binary exists
         if not os.path.isfile(binary):
             logger.error(f"Binary not found: {binary}")
             raise FileNotFoundError(f"Binary not found: {binary}")
+
+        # Ensure the binary is executable on Linux
         if platform.system() == 'Linux':
             chmod_command = ['chmod', '+x', binary]
             try:
@@ -32,6 +43,7 @@ class DASH:
             except subprocess.CalledProcessError as e:
                 logger.error(Fore.RED + f"Failed to set executable permissions for: {binary}" + Fore.RESET)
                 raise RuntimeError(f"Could not set executable permissions for: {binary}") from e
+
         return binary
 
     def dash_downloader(self):
