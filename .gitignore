@@ -1,3 +1,5 @@
 venv/
 dist/
-buid/
+build/
+DDownloader.egg-info/
+DDownloader/__pycache__

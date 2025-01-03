@@ -35,4 +35,10 @@ hls_downloader.decryption_key = "12345:678910"  # Set decryption key if needed
 hls_downloader.hls_downloader()  # Call the downloader method
 ```
 
+- CLI Usage:
+```bash
+  DDownloader -h
+```
+![image](https://github.com/user-attachments/assets/52eb4152-9b50-4bf1-ac4d-2544ba3497a6)
+
 # THIS PROJECT STILL IN DEVELOPMENT
