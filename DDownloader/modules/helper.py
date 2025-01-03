@@ -16,7 +16,7 @@ binaries = [
     "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/aria2c.exe",
     "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/mp4decrypt.exe",
     "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/shaka-packager.exe",
-    "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/yt-dl.exe",
+    "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/yt-dlp.exe",
     "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/mkvmerge.exe"
 ]
 
@@ -33,7 +33,7 @@ def download_binaries(bin_dir):
                 logger.info(f"Skipping {filename} (already exists).")
                 continue
 
-            logger.info(f"Downloading {filename} from {binary_url}...")
+            logger.info(f"{Fore.GREEN}Downloading {Fore.WHITE}{filename}...{Fore.RESET}")
             response = requests.get(binary_url, stream=True, timeout=30)
             response.raise_for_status()
 
@@ -51,7 +51,7 @@ def download_binaries(bin_dir):
                     file.write(chunk)
                     progress_bar.update(len(chunk))
 
-            logger.info(f"{Fore.GREEN}Downloaded and saved: {filepath}{Fore.RESET}")
+            # logger.info(f"{Fore.GREEN}Downloaded and saved: {filepath}{Fore.RESET}")
         except requests.exceptions.RequestException as e:
             logger.error(f"{Fore.RED}Failed to download {binary_url}: {e}{Fore.RESET}")
         except Exception as e:

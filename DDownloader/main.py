@@ -2,10 +2,12 @@ import os
 import re
 import logging
 import coloredlogs
+import time
+from pathlib import Path
 from colorama import Fore, Style
-import platform, time # Added to detect platform
+from DDownloader.modules.helper import download_binaries, detect_platform
 from DDownloader.modules.args_parser import parse_arguments
-from DDownloader.modules.banners import banners
+from DDownloader.modules.banners import clear_and_print
 from DDownloader.modules.dash_downloader import DASH
 from DDownloader.modules.hls_downloader import HLS
 
@@ -14,23 +16,10 @@ logger = logging.getLogger("+ MAIN + ")
 coloredlogs.install(level='DEBUG', logger=logger)
 
 def validate_directories():
-    """Ensure necessary directories exist."""
     downloads_dir = 'downloads'
     if not os.path.exists(downloads_dir):
         os.makedirs(downloads_dir)
-        logger.debug(f"Created '{downloads_dir}' directory.")
-
-def detect_platform():
-    """Detect the platform the script is running on."""
-    system_platform = platform.system().lower()
-    if system_platform == 'windows':
-        return 'Windows'
-    elif system_platform == 'linux':
-        return 'Linux'
-    elif system_platform == 'darwin':
-        return 'MacOS'
-    else:
-        return 'Unknown'
+        # logger.debug(f"Created '{downloads_dir}' directory.")
 
 def display_help():
     """Display custom help message with emoji."""
@@ -47,12 +36,18 @@ def display_help():
     )
 
 def main():
-    banners()
-    time.sleep(1)
+    clear_and_print()
     platform_name = detect_platform()
-    logger.info(f"Running on platform: {platform_name}\n")
+    logger.info(f"Running on platform: {platform_name}")
     time.sleep(1)
     
+    logger.info(f"Downloading binaries... Please wait!\n")
+    bin_dir = Path(__file__).resolve().parent / "bin"
+    download_binaries(bin_dir)
+    time.sleep(1)
+    logger.info(f"{Fore.GREEN}Downloading completed! Bye!{Fore.RESET}")
+    clear_and_print()
+
     validate_directories()
     try:
         args = parse_arguments()

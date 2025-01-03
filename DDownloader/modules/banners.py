@@ -1,4 +1,4 @@
-import os
+import os, time
 from sys import stdout
 from colorama import Fore, Style
 
@@ -6,7 +6,6 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
     
 def banners():
-    clear_screen()
     stdout.write("                                                                                         \n")
     stdout.write(""+Fore.LIGHTRED_EX +"██████╗ ██████╗  ██████╗ ██╗    ██╗███╗   ██╗██╗      ██████╗  █████╗ ██████╗  █████╗ ███████╗██████╗ \n")
     stdout.write(""+Fore.LIGHTRED_EX +"██╔══██╗██╔══██╗██╔═══██╗██║    ██║████╗  ██║██║     ██╔═══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗\n")
@@ -20,7 +19,12 @@ def banners():
     stdout.write(""+Fore.YELLOW   +"╔════════════════════════════════════════════════════════════════════════════╝\n")
     stdout.write(""+Fore.YELLOW   +"║ \x1b[38;2;255;20;147m• "+Fore.GREEN+"GITHUB             "+Fore.RED+"    |"+Fore.LIGHTWHITE_EX+"   GITHUB.COM/THATNOTEASY                        "+Fore.YELLOW+"║\n")
     stdout.write(""+Fore.YELLOW   +"╚════════════════════════════════════════════════════════════════════════════╝\n") 
-    print(f"{Fore.YELLOW}[DDownloader] - {Fore.GREEN}Download DASH or HLS streams with decryption keys. - {Fore.RED}[V0.2.3] \n{Fore.RESET}")
+    print(f"{Fore.YELLOW}[DDownloader] - {Fore.GREEN}Download DASH or HLS streams with decryption keys. - {Fore.RED}[V0.2.4] \n{Fore.RESET}")
+    
+def clear_and_print():
+    time.sleep(1)
+    clear_screen()
+    banners()
 
 
 
