@@ -14,6 +14,7 @@ class HLS:
         self.output_name = None
         self.proxy = None
         self.decryption_keys = []
+        self.headers = []
         self.binary_path = self._get_binary_path()
 
     def _get_binary_path(self):
@@ -55,25 +56,30 @@ class HLS:
 
     def _build_command(self):
         command = [
-            f'"{self.binary_path}"',
+            self.binary_path,
             f'"{self.manifest_url}"',
             '--select-video', 'BEST',
             '--select-audio', 'BEST',
             '-mt',
             '-M', 'format=mp4',
-            '--save-dir', 'downloads',
-            '--tmp-dir', 'downloads',
+            '--save-dir', '"downloads"',
+            '--tmp-dir', '"downloads"',
             '--del-after-done',
-            '--save-name', self.output_name
+            '--save-name', f'"{self.output_name}"'
         ]
 
         for key in self.decryption_keys:
-            command.extend(['--key', key])
+            command.extend(['--key', f'"{key}"'])
 
         if self.proxy:
             if not self.proxy.startswith("http://"):
                 self.proxy = f"http://{self.proxy}"
-            command.extend(['--custom-proxy', self.proxy])
+            command.extend(['--custom-proxy', f'"{self.proxy}"'])
+
+        # Add headers if any are provided
+        for header in self.headers:
+            command.extend(['-H', f'"{header}"'])
+
         # logger.debug(f"Built command: {' '.join(command)}")
         return command
 

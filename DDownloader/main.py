@@ -16,26 +16,32 @@ logger = logging.getLogger("+ DDOWNLOADER + ")
 coloredlogs.install(level='DEBUG', logger=logger)
 
 def validate_directories():
+    """Ensure necessary directories exist."""
     downloads_dir = 'downloads'
-    if not os.path.exists(downloads_dir):
-        os.makedirs(downloads_dir)
-        # logger.debug(f"Created '{downloads_dir}' directory.")
+    try:
+        os.makedirs(downloads_dir, exist_ok=True)
+        # logger.debug(f"Validated existence of directory: '{downloads_dir}'.")
+    except Exception as e:
+        logger.error(f"Failed to create or validate downloads directory: {e}")
+        exit(1)
 
 def display_help():
     """Display custom help message with emoji."""
     print(
-        f"{Fore.WHITE}+" + "=" * 80 + f"+{Style.RESET_ALL}\n"
+        f"{Fore.WHITE}+" + "=" * 100 + f"+{Style.RESET_ALL}\n"
         f"{Fore.CYAN}{'Option':<40}{'Description':<90}{Style.RESET_ALL}\n"
-        f"{Fore.WHITE}+" + "=" * 80 + f"+{Style.RESET_ALL}\n"
+        f"{Fore.WHITE}+" + "=" * 100 + f"+{Style.RESET_ALL}\n"
         f"  {Fore.GREEN}-u, --url{' ' * 22}{Style.RESET_ALL}URL of the manifest (mpd/m3u8) 🌐\n"
         f"  {Fore.GREEN}-p, --proxy{' ' * 20}{Style.RESET_ALL}A proxy with protocol (http://ip:port) 🌍\n"
         f"  {Fore.GREEN}-o, --output{' ' * 19}{Style.RESET_ALL}Name of the output file 💾\n"
         f"  {Fore.GREEN}-k, --key{' ' * 22}{Style.RESET_ALL}Decryption key in KID:KEY format 🔑\n"
-        f"  {Fore.GREEN}-h, --help{' ' * 21}{Style.RESET_ALL}Show this help message and exit ❓\n"
-        f"{Fore.WHITE}+" + "=" * 80 + f"+{Style.RESET_ALL}\n"
+        f"  {Fore.GREEN}-h, --header{' ' * 19}{Style.RESET_ALL}Custom HTTP headers (e.g., User-Agent: value) 📋\n"
+        f"  {Fore.GREEN}-?, --help{' ' * 21}{Style.RESET_ALL}Show this help message and exit ❓\n"
+        f"{Fore.WHITE}+" + "=" * 100 + f"+{Style.RESET_ALL}\n"
     )
 
 def main():
+    """Main entry point for the downloader."""
     clear_and_print()
     platform_name = detect_platform()
     if platform_name == 'Unknown':
@@ -54,6 +60,8 @@ def main():
     clear_and_print()
 
     validate_directories()
+
+    # Parse arguments
     try:
         args = parse_arguments()
     except SystemExit:
@@ -78,12 +86,20 @@ def main():
     downloader.decryption_keys = args.key or []
     downloader.proxy = args.proxy  # Add proxy if provided
 
+    # Add headers if specified
+    if hasattr(args, 'header') and args.header:
+        downloader.headers = args.header  # Pass headers to downloader
+        logger.info("Custom HTTP headers provided:")
+        for header in args.header:
+            logger.info(f"  --header {header}")
+        print(Fore.MAGENTA + "=" * 100 + Fore.RESET)
+
     # Log provided decryption keys
     if downloader.decryption_keys:
         logger.info("Decryption keys provided:")
         for key in downloader.decryption_keys:
             logger.info(f"  --key {key}")
-        print(Fore.MAGENTA + "=" * 80 + Fore.RESET)
+        print(Fore.MAGENTA + "=" * 100 + Fore.RESET)
 
     # Execute downloader
     try:
