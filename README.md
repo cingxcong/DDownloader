@@ -6,6 +6,9 @@
 - Download DASH manifests and segments.
 - Decrypt media files using mp4decrypt.
 
+# Footprints Notes:
+- It is better if you have set your own environment variables.
+
 # Installation
 Use the package manager pip to install DDownloader.
 ```pip install DDownloader```

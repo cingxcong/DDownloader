@@ -55,7 +55,7 @@ class HLS:
 
     def _build_command(self):
         command = [
-            self.binary_path,
+            f'"{self.binary_path}"',
             f'"{self.manifest_url}"',
             '--select-video', 'BEST',
             '--select-audio', 'BEST',

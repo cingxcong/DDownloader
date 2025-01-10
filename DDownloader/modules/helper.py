@@ -1,36 +1,55 @@
 import os
 import requests
 from tqdm import tqdm
-from colorama import Fore
+from colorama import Fore, Style, init
 import logging
 import coloredlogs
 import platform
 
+# Initialize Colorama for Windows compatibility
+init(autoreset=True)
+
+# Logger setup
 logger = logging.getLogger(Fore.GREEN + "+ HELPER + ")
 coloredlogs.install(level='DEBUG', logger=logger)
 
-binaries = [
-    "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/N_m3u8DL-RE",
-    "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/N_m3u8DL-RE.exe",
-    "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/ffmpeg.exe",
-    "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/aria2c.exe",
-    "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/mp4decrypt.exe",
-    "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/shaka-packager.exe",
-    "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/yt-dlp.exe",
-    "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/mkvmerge.exe"
-]
+# Binaries with platform-specific handling
+binaries = {
+    "Windows": [
+        "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/N_m3u8DL-RE.exe",
+        "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/ffmpeg.exe",
+        "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/aria2c.exe",
+        "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/mp4decrypt.exe",
+        "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/shaka-packager.exe",
+        "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/yt-dlp.exe",
+        "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/mkvmerge.exe"
+    ],
+    "Linux": [
+        "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/N_m3u8DL-RE"
+    ]
+}
 
-def download_binaries(bin_dir):
+def download_binaries(bin_dir, platform_name):
+    """
+    Downloads platform-specific binaries to the specified directory.
+    """
     os.makedirs(bin_dir, exist_ok=True)
-    # logger.info(f"Created or confirmed directory: {bin_dir}")
+    logger.info(f"Platform detected: {platform_name}")
+    logger.info(f"Using binary directory: {bin_dir}")
+    
+    platform_binaries = binaries.get(platform_name, [])
+    
+    if not platform_binaries:
+        logger.error(f"No binaries available for platform: {platform_name}")
+        return
 
-    for binary_url in binaries:
+    for binary_url in platform_binaries:
         try:
             filename = binary_url.split("/")[-1]
             filepath = os.path.join(bin_dir, filename)
 
             if os.path.exists(filepath):
-                logger.info(f"Skipping {filename} (already exists).")
+                logger.info(f"{Style.BRIGHT}{Fore.YELLOW}Skipping {filename} (already exists).")
                 continue
 
             logger.info(f"{Fore.GREEN}Downloading {Fore.WHITE}{filename}...{Fore.RESET}")
@@ -52,12 +71,18 @@ def download_binaries(bin_dir):
                     progress_bar.update(len(chunk))
 
             # logger.info(f"{Fore.GREEN}Downloaded and saved: {filepath}{Fore.RESET}")
+            # Make binary executable on Linux
+            if platform_name == "Linux":
+                os.chmod(filepath, 0o755)
         except requests.exceptions.RequestException as e:
             logger.error(f"{Fore.RED}Failed to download {binary_url}: {e}{Fore.RESET}")
         except Exception as e:
             logger.error(f"{Fore.RED}Unexpected error for {binary_url}: {e}{Fore.RESET}")
 
 def detect_platform():
+    """
+    Detects the current operating system platform.
+    """
     system_platform = platform.system().lower()
     if system_platform == 'windows':
         return 'Windows'

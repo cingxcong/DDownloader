@@ -12,7 +12,7 @@ from DDownloader.modules.dash_downloader import DASH
 from DDownloader.modules.hls_downloader import HLS
 
 # Setup logger
-logger = logging.getLogger("+ MAIN + ")
+logger = logging.getLogger("+ DDOWNLOADER + ")
 coloredlogs.install(level='DEBUG', logger=logger)
 
 def validate_directories():
@@ -38,12 +38,17 @@ def display_help():
 def main():
     clear_and_print()
     platform_name = detect_platform()
+    if platform_name == 'Unknown':
+        logger.error(f"Unsupported platform: {platform_name}")
+        exit(1)
+        
     logger.info(f"Running on platform: {platform_name}")
     time.sleep(1)
     
     logger.info(f"Downloading binaries... Please wait!\n")
     bin_dir = Path(__file__).resolve().parent / "bin"
-    download_binaries(bin_dir)
+    download_binaries(bin_dir, platform_name)
+    
     time.sleep(1)
     logger.info(f"{Fore.GREEN}Downloading completed! Bye!{Fore.RESET}")
     clear_and_print()
