@@ -12,18 +12,14 @@ from DDownloader.modules.dash_downloader import DASH
 from DDownloader.modules.hls_downloader import HLS
 
 # Setup logger
-logger = logging.getLogger("+ DDOWNLOADER + ")
+logger = logging.getLogger("+ MAIN + ")
 coloredlogs.install(level='DEBUG', logger=logger)
 
 def validate_directories():
-    """Ensure necessary directories exist."""
     downloads_dir = 'downloads'
-    try:
-        os.makedirs(downloads_dir, exist_ok=True)
-        # logger.debug(f"Validated existence of directory: '{downloads_dir}'.")
-    except Exception as e:
-        logger.error(f"Failed to create or validate downloads directory: {e}")
-        exit(1)
+    if not os.path.exists(downloads_dir):
+        os.makedirs(downloads_dir)
+        # logger.debug(f"Created '{downloads_dir}' directory.")
 
 def display_help():
     """Display custom help message with emoji."""
@@ -35,40 +31,28 @@ def display_help():
         f"  {Fore.GREEN}-p, --proxy{' ' * 20}{Style.RESET_ALL}A proxy with protocol (http://ip:port) 🌍\n"
         f"  {Fore.GREEN}-o, --output{' ' * 19}{Style.RESET_ALL}Name of the output file 💾\n"
         f"  {Fore.GREEN}-k, --key{' ' * 22}{Style.RESET_ALL}Decryption key in KID:KEY format 🔑\n"
-        f"  {Fore.GREEN}-h, --header{' ' * 19}{Style.RESET_ALL}Custom HTTP headers (e.g., User-Agent: value) 📋\n"
-        f"  {Fore.GREEN}-?, --help{' ' * 21}{Style.RESET_ALL}Show this help message and exit ❓\n"
+        f"  {Fore.GREEN}-H, --header{' ' * 19}{Style.RESET_ALL}Custom HTTP headers (e.g., User-Agent: value) 📋\n"
+        f"  {Fore.GREEN}-h, --help{' ' * 21}{Style.RESET_ALL}Show this help message and exit ❓\n"
         f"{Fore.WHITE}+" + "=" * 100 + f"+{Style.RESET_ALL}\n"
     )
 
 def main():
-    """Main entry point for the downloader."""
     clear_and_print()
     platform_name = detect_platform()
-    if platform_name == 'Unknown':
-        logger.error(f"Unsupported platform: {platform_name}")
-        exit(1)
-        
-    logger.info(f"Running on platform: {platform_name}")
+    logger.info(f"Downloading binaries... Please wait!")
+    print(Fore.MAGENTA + "=" * 100 + Fore.RESET)
     time.sleep(1)
-    
-    logger.info(f"Downloading binaries... Please wait!\n")
     bin_dir = Path(__file__).resolve().parent / "bin"
     download_binaries(bin_dir, platform_name)
-    
-    time.sleep(1)
-    logger.info(f"{Fore.GREEN}Downloading completed! Bye!{Fore.RESET}")
     clear_and_print()
 
     validate_directories()
-
-    # Parse arguments
     try:
         args = parse_arguments()
     except SystemExit:
         display_help()
         exit(1)
 
-    # Detect and initialize appropriate downloader
     downloader = None
     if re.search(r"\.mpd\b", args.url, re.IGNORECASE):
         logger.info("DASH stream detected. Initializing DASH downloader...")
@@ -84,14 +68,22 @@ def main():
     downloader.manifest_url = args.url
     downloader.output_name = args.output
     downloader.decryption_keys = args.key or []
+    downloader.headers = args.header or []
     downloader.proxy = args.proxy  # Add proxy if provided
-
-    # Add headers if specified
-    if hasattr(args, 'header') and args.header:
-        downloader.headers = args.header  # Pass headers to downloader
-        logger.info("Custom HTTP headers provided:")
-        for header in args.header:
-            logger.info(f"  --header {header}")
+    
+    if downloader.proxy:
+        print(Fore.MAGENTA + "=" * 100 + Fore.RESET)
+        if not downloader.proxy.startswith("http://"):
+            downloader.proxy = f"http://{downloader.proxy}"
+            logger.info(f"Proxy: {downloader.proxy}")
+            print(Fore.MAGENTA + "=" * 100 + Fore.RESET)
+            
+    # Log provided headers
+    if downloader.headers:
+        print(Fore.MAGENTA + "=" * 100 + Fore.RESET)
+        logger.info("Headers provided:")
+        for header in downloader.headers:
+            logger.info(f"  -H {header}")
         print(Fore.MAGENTA + "=" * 100 + Fore.RESET)
 
     # Log provided decryption keys
