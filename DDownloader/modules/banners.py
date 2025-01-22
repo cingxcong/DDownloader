@@ -11,19 +11,19 @@ def clear_screen():
 
 def banners():
     stdout.write("                                                                                         \n")
-    stdout.write(""+Fore.LIGHTRED_EX +"██████╗ ██████╗  ██████╗ ██╗    ██╗███╗   ██╗██╗      ██████╗  █████╗ ██████╗  █████╗ ███████╗██████╗ \n")
-    stdout.write(""+Fore.LIGHTRED_EX +"██╔══██╗██╔══██╗██╔═══██╗██║    ██║████╗  ██║██║     ██╔═══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗\n")
-    stdout.write(""+Fore.LIGHTRED_EX +"██║  ██║██║  ██║██║   ██║██║ █╗ ██║██╔██╗ ██║██║     ██║   ██║███████║██║  ██║███████║█████╗  ██████╔╝\n")
-    stdout.write(""+Fore.LIGHTRED_EX +"██║  ██║██║  ██║██║   ██║██║███╗██║██║╚██╗██║██║     ██║   ██║██╔══██║██║  ██║██╔══██║██╔══╝  ██╔══██╗\n")
-    stdout.write(""+Fore.LIGHTRED_EX +"██████╔╝██████╔╝╚██████╔╝╚███╔███╔╝██║ ╚████║███████╗╚██████╔╝██║  ██║██████╔╝██║  ██║███████╗██║  ██║\n")
-    stdout.write(""+Fore.LIGHTRED_EX +"╚═════╝ ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝\n")
+    stdout.write(""+Fore.LIGHTRED_EX +"██████╗ ██████╗  ██████╗ ██╗    ██╗███╗   ██╗██╗      ██████╗  █████╗ ██████╗ ███████╗██████╗ \n")
+    stdout.write(""+Fore.LIGHTRED_EX +"██╔══██╗██╔══██╗██╔═══██╗██║    ██║████╗  ██║██║     ██╔═══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗\n")
+    stdout.write(""+Fore.LIGHTRED_EX +"██║  ██║██║  ██║██║   ██║██║ █╗ ██║██╔██╗ ██║██║     ██║   ██║███████║██║  ██║█████╗  ██████╔╝\n")
+    stdout.write(""+Fore.LIGHTRED_EX +"██║  ██║██║  ██║██║   ██║██║███╗██║██║╚██╗██║██║     ██║   ██║██╔══██║██║  ██║██╔══╝  ██╔══██╗\n")
+    stdout.write(""+Fore.LIGHTRED_EX +"██████╔╝██████╔╝╚██████╔╝╚███╔███╔╝██║ ╚████║███████╗╚██████╔╝██║  ██║██████╔╝███████╗██║  ██║\n")
+    stdout.write(""+Fore.LIGHTRED_EX +"╚═════╝ ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝\n")
     stdout.write(""+Fore.YELLOW +"═════════════╦═════════════════════════════════╦══════════════════════════════\n")
     stdout.write(""+Fore.YELLOW   +"╔════════════╩═════════════════════════════════╩═════════════════════════════╗\n")
     stdout.write(""+Fore.YELLOW   +"║ \x1b[38;2;255;20;147m• "+Fore.GREEN+"AUTHOR             "+Fore.RED+"    |"+Fore.LIGHTWHITE_EX+"   PARI MALAM                                    "+Fore.YELLOW+"║\n")
     stdout.write(""+Fore.YELLOW   +"╔════════════════════════════════════════════════════════════════════════════╝\n")
     stdout.write(""+Fore.YELLOW   +"║ \x1b[38;2;255;20;147m• "+Fore.GREEN+"GITHUB             "+Fore.RED+"    |"+Fore.LIGHTWHITE_EX+"   GITHUB.COM/THATNOTEASY                        "+Fore.YELLOW+"║\n")
     stdout.write(""+Fore.YELLOW   +"╚════════════════════════════════════════════════════════════════════════════╝\n") 
-    print(f"{Fore.YELLOW}[DDownloader] - {Fore.GREEN}A DRM-Protected Content Downloader - {Fore.RED}[V0.3.4] \n{Fore.RESET}")
+    print(f"{Fore.YELLOW}[DDownloader] - {Fore.GREEN}A DRM-Protected Content Downloader - {Fore.RED}[V0.3.5] \n{Fore.RESET}")
 
 # =========================================================================================================== #
 
