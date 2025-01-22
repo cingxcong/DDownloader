@@ -118,7 +118,7 @@ def main():
 
     if args.input and args.quality:
         logger.info(f"Starting re-encode process for {args.input} to {args.quality.upper()} quality...")
-        output_file = downloader.reencode_video(
+        output_file = downloader.re_encode_content(
             input_file=args.input,
             quality=args.quality,
             codec="libx265",

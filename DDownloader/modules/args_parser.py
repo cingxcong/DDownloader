@@ -12,7 +12,7 @@ def parse_arguments():
     # Add arguments (these will not include the default descriptions)
     parser.add_argument("-u", "--url", help=argparse.SUPPRESS)
     parser.add_argument("-p", "--proxy", help=argparse.SUPPRESS)
-    parser.add_argument("-o", "--output", required=True, help=argparse.SUPPRESS)
+    parser.add_argument("-o", "--output", help=argparse.SUPPRESS)
     parser.add_argument("-k", "--key", action="append", help=argparse.SUPPRESS)
     parser.add_argument("-H", "--header", action="append", help=argparse.SUPPRESS)
     parser.add_argument("-i", "--input", help=argparse.SUPPRESS)

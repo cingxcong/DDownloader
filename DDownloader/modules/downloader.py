@@ -105,7 +105,7 @@ class DOWNLOADER:
 
 # =========================================================================================================== #
 
-    def reencode_video(self, input_file, quality, codec="libx265", crf=20, preset="medium", audio_bitrate="256k"):
+    def re_encode_content(self, input_file, quality, codec="libx265", crf=20, preset="medium", audio_bitrate="256k"):
         resolutions = {
             "HD": "1280:720",
             "FHD": "1920:1080",
