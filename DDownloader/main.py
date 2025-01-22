@@ -46,7 +46,7 @@ def process_media_info(directory="downloads", log_dir="logs"):
                 with open(log_file_path, "w", encoding="utf-8") as log_file:
                     json.dump(media_info, log_file, indent=4)
                 logger.info(f"Saved media information to: {log_file_path}")
-                print(Fore.RED + "═" * 80 + Fore.RESET + "\n")
+                print(Fore.RED + "═" * 100 + Fore.RESET + "\n")
 
         except Exception as e:
             logger.error(f"Failed to process {file_path}: {e}")
@@ -56,8 +56,8 @@ def process_media_info(directory="downloads", log_dir="logs"):
 def main():
     clear_and_print()
     platform_name = detect_platform()
-    logger.info("Downloading binaries... Please wait!")
-    print(Fore.MAGENTA + "=" * 100 + Fore.RESET)
+    logger.info("Please be patient...")
+    print(Fore.RED + "═" * 100 + Fore.RESET)
     time.sleep(1)
     bin_dir = Path(__file__).resolve().parent / "bin"
     download_binaries(bin_dir, platform_name)
@@ -72,47 +72,65 @@ def main():
 
     downloader = DOWNLOADER()
 
-    if re.search(r"\.mpd\b", args.url, re.IGNORECASE):
-        logger.info("DASH stream detected. Initializing DASH downloader...")
-    elif re.search(r"\.m3u8\b", args.url, re.IGNORECASE):
-        logger.info("HLS stream detected. Initializing HLS downloader...")
-    elif re.search(r"\.ism\b", args.url, re.IGNORECASE):
-        logger.info("ISM (Smooth Streaming) detected. Initializing ISM downloader...")
-    else:
-        logger.error("Unsupported URL format. Please provide a valid DASH (.mpd), HLS (.m3u8), or ISM (.ism) URL.")
-        exit(1)
+    # Handle downloading if URL is provided
+    if args.url:
+        if re.search(r"\.mpd\b", args.url, re.IGNORECASE):
+            logger.info("DASH stream detected. Initializing DASH downloader...")
+        elif re.search(r"\.m3u8\b", args.url, re.IGNORECASE):
+            logger.info("HLS stream detected. Initializing HLS downloader...")
+        elif re.search(r"\.ism\b", args.url, re.IGNORECASE):
+            logger.info("ISM (Smooth Streaming) detected. Initializing ISM downloader...")
+        else:
+            logger.error("Unsupported URL format. Please provide a valid DASH (.mpd), HLS (.m3u8), or ISM (.ism) URL.")
+            exit(1)
 
-    downloader.manifest_url = args.url
-    downloader.output_name = args.output
-    downloader.decryption_keys = args.key or []
-    downloader.headers = args.header or []
-    downloader.proxy = args.proxy
+        downloader.manifest_url = args.url
+        downloader.output_name = args.output
+        downloader.decryption_keys = args.key or []
+        downloader.headers = args.header or []
+        downloader.proxy = args.proxy
 
-    if downloader.proxy:
-        if not downloader.proxy.startswith("http://"):
-            downloader.proxy = f"http://{downloader.proxy}"
-        logger.info(f"Proxy: {downloader.proxy}")
-        print(Fore.RED + "═" * 80 + Fore.RESET + "\n")
+        if downloader.proxy:
+            if not downloader.proxy.startswith("http://"):
+                downloader.proxy = f"http://{downloader.proxy}"
+            logger.info(f"Proxy: {downloader.proxy}")
+            print(Fore.RED + "═" * 100 + Fore.RESET + "\n")
 
-    if downloader.headers:
-        logger.info("Headers:")
-        for header in downloader.headers:
-            logger.info(f"  - {header}")
-            print(Fore.RED + "═" * 80 + Fore.RESET + "\n")
+        if downloader.headers:
+            logger.info("Headers:")
+            for header in downloader.headers:
+                logger.info(f"  - {header}")
+            print(Fore.RED + "═" * 100 + Fore.RESET + "\n")
 
-    if downloader.decryption_keys:
-        logger.info("Decryption keys:")
-        for key in downloader.decryption_keys:
-            logger.info(f"  - {key}")
-            print(Fore.RED + "═" * 80 + Fore.RESET + "\n")
+        if downloader.decryption_keys:
+            logger.info("Decryption keys:")
+            for key in downloader.decryption_keys:
+                logger.info(f"  - {key}")
+            print(Fore.RED + "═" * 100 + Fore.RESET + "\n")
 
-    try:
-        downloader.drm_downloader()
-    except Exception as e:
-        logger.error(f"An error occurred during the download process: {e}")
-        exit(1)
+        try:
+            downloader.drm_downloader()
+        except Exception as e:
+            logger.error(f"An error occurred during the download process: {e}")
+            exit(1)
 
-    process_media_info(downloads_dir)
+        process_media_info(downloads_dir)
+
+    if args.input and args.quality:
+        logger.info(f"Starting re-encode process for {args.input} to {args.quality.upper()} quality...")
+        output_file = downloader.reencode_video(
+            input_file=args.input,
+            quality=args.quality,
+            codec="libx265",
+            crf=20,
+            preset="medium"
+        )
+
+        if output_file:
+            logger.info(f"Re-encoding completed successfully! Output saved to: {output_file}")
+        else:
+            logger.error("Re-encoding failed.")
+            exit(1)
 
 # =========================================================================================================== #
 
