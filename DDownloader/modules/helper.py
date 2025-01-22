@@ -5,15 +5,15 @@ from colorama import Fore, Style, init
 import logging
 import coloredlogs
 import platform
+from pymediainfo import MediaInfo
 
-# Initialize Colorama for Windows compatibility
 init(autoreset=True)
 
-# Logger setup
 logger = logging.getLogger(Fore.GREEN + "+ HELPER + ")
 coloredlogs.install(level='DEBUG', logger=logger)
 
-# Binaries with platform-specific handling
+# =========================================================================================================== #
+
 binaries = {
     "Windows": [
         "https://github.com/ThatNotEasy/DDownloader/raw/refs/heads/main/DDownloader/bin/N_m3u8DL-RE.exe",
@@ -29,10 +29,9 @@ binaries = {
     ]
 }
 
+# =========================================================================================================== #
+
 def download_binaries(bin_dir, platform_name):
-    """
-    Downloads platform-specific binaries to the specified directory.
-    """
     os.makedirs(bin_dir, exist_ok=True)
     logger.info(f"Platform detected: {platform_name}")
     logger.info(f"Using binary directory: {bin_dir}")
@@ -56,7 +55,6 @@ def download_binaries(bin_dir, platform_name):
             response = requests.get(binary_url, stream=True, timeout=30)
             response.raise_for_status()
 
-            # Total size for progress bar
             total_size = int(response.headers.get('content-length', 0))
             with open(filepath, "wb") as file, tqdm(
                 total=total_size,
@@ -70,8 +68,6 @@ def download_binaries(bin_dir, platform_name):
                     file.write(chunk)
                     progress_bar.update(len(chunk))
 
-            # logger.info(f"{Fore.GREEN}Downloaded and saved: {filepath}{Fore.RESET}")
-            # Make binary executable on Linux
             if platform_name == "Linux":
                 os.chmod(filepath, 0o755)
         except requests.exceptions.RequestException as e:
@@ -79,10 +75,9 @@ def download_binaries(bin_dir, platform_name):
         except Exception as e:
             logger.error(f"{Fore.RED}Unexpected error for {binary_url}: {e}{Fore.RESET}")
 
+# =========================================================================================================== #
+
 def detect_platform():
-    """
-    Detects the current operating system platform.
-    """
     system_platform = platform.system().lower()
     if system_platform == 'windows':
         return 'Windows'
@@ -92,3 +87,57 @@ def detect_platform():
         return 'MacOS'
     else:
         return 'Unknown'
+
+# =========================================================================================================== #
+
+def get_media_info(file_path):
+    try:
+        logger.info(f"Parsing media file: {file_path}")
+        media_info = MediaInfo.parse(file_path)
+        result = {"file_path": file_path, "tracks": []}
+
+        for track in media_info.tracks:
+            track_info = {"track_type": track.track_type}
+
+            if track.track_type == "Video":
+                track_info.update({
+                    "codec": track.codec,
+                    "width": track.width,
+                    "height": track.height,
+                    "frame_rate": track.frame_rate,
+                    "bit_rate": track.bit_rate,
+                    "duration": track.duration,
+                    "aspect_ratio": track.display_aspect_ratio,
+                })
+            elif track.track_type == "Audio":
+                track_info.update({
+                    "codec": track.codec,
+                    "channels": track.channel_s,
+                    "sample_rate": track.sampling_rate,
+                    "bit_rate": track.bit_rate,
+                    "duration": track.duration,
+                    "language": track.language,
+                })
+            elif track.track_type == "Text":
+                track_info.update({
+                    "language": track.language,
+                    "format": track.format,
+                })
+            elif track.track_type == "General":
+                track_info.update({
+                    "file_size": track.file_size,
+                    "format": track.format,
+                    "duration": track.duration,
+                    "overall_bit_rate": track.overall_bit_rate,
+                })
+
+            result["tracks"].append(track_info)
+
+        logger.info(f"Successfully extracted media information for: {file_path}")
+        return result
+
+    except Exception as e:
+        logger.error(f"Error occurred while parsing media file '{file_path}': {e}")
+        return None
+    
+# =========================================================================================================== #
