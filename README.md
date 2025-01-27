@@ -1,4 +1,30 @@
 # DDownloader
+_DDownloader is a powerful Python-based tool and library designed to download and decrypt DRM-protected content from DASH, HLS, and ISM manifests. It provides seamless support for encrypted media streams, extracting metadata and ensuring high compatibility with various DRM standards._
+
+## Features
+- **Download and Decrypt**: Supports DASH, HLS, and ISM manifests with seamless decryption using provided keys.
+- **Automatic Detection**: Automatically detects manifest types (.mpd, .m3u8, .ism) and processes accordingly.
+- **Media Information Extraction**: Extracts metadata (e.g., codec, resolution, duration) for .mp4 files and saves it in a `logs/` directory.
+- **CLI and Library Support**: Flexible usage via command-line or Python library.
+- **Detailed Logging**: Provides real-time progress and logs errors for debugging.
+
+## Requirements
+
+- **Python**: Version 3.7 or higher.
+- **Required binaries**:
+  
+    - `N_m3u8DL-RE` for downloading protected DRM content.
+    - `mp4decrypt` for decrypting protected media files.
+    - `ffmpeg` for re-encoding and muxer method
+    - a proper environment variable configuration for binaries.
+
+##  Installation
+- Install `DDownloader` using pip:
+  
+	```bash
+	pip install DDownloader
+	```
+
 ##  Usage
 - Download Content:
   
@@ -61,7 +87,3 @@
 	```
 
 - ![image](https://github.com/user-attachments/assets/8c73a79e-fcac-4bde-a07c-5628db0d19df)
-
-
-## THIS PROJECT STILL IN DEVELOPMENT
-- Contributions are welcome! Feel free to open issues, create pull requests, or provide suggestions.
