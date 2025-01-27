@@ -1,8 +1,9 @@
-import os
+import os, requests
 import subprocess
 import logging
 import platform
 import coloredlogs
+from tqdm import tqdm
 from colorama import Fore
 
 logger = logging.getLogger(Fore.RED + "+ DDOWNLOADER + ")
@@ -157,3 +158,46 @@ class DOWNLOADER:
         else:
             logger.error(f"Re-encoding failed. Output file not created: {output_file}")
             return None
+        
+# =========================================================================================================== #
+
+    def normal_downloader(self, url, output_file):
+        """
+        Download a video file from a given URL with a progress bar.
+        Automatically adds .mp4 extension if missing.
+
+        Args:
+            url (str): The video URL to download.
+            output_file (str): The output file path to save the video.
+        """
+        try:
+            # Add .mp4 extension if not already present
+            if not output_file.lower().endswith(".mp4"):
+                output_file += ".mp4"
+
+            # Send a GET request to the URL with stream=True
+            response = requests.get(url, stream=True)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+
+            # Get the total file size from the headers
+            total_size = int(response.headers.get('content-length', 0))
+
+            # Open the output file in binary write mode
+            with open(output_file, 'wb') as file:
+                # Use tqdm to show a progress bar
+                with tqdm(
+                    total=total_size,
+                    unit='B',
+                    unit_scale=True,
+                    unit_divisor=1024,
+                    desc=f"Downloading {os.path.basename(output_file)}",
+                ) as progress:
+                    # Write the content in chunks
+                    for chunk in response.iter_content(chunk_size=1024):
+                        file.write(chunk)
+                        progress.update(len(chunk))
+
+            print(f"Download complete: {output_file}")
+
+        except requests.exceptions.RequestException as e:
+            print(f"Error during download: {e}")

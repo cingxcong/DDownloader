@@ -80,6 +80,11 @@ def main():
             logger.info("HLS stream detected. Initializing HLS downloader...")
         elif re.search(r"\.ism\b", args.url, re.IGNORECASE):
             logger.info("ISM (Smooth Streaming) detected. Initializing ISM downloader...")
+        elif re.search(r"\.mp4\b", args.url, re.IGNORECASE):
+            logger.info("MP4 file detected. Processing media information...")
+            print(Fore.RED + "═" * 100 + Fore.RESET)
+            downloader.normal_downloader(args.url, os.path.join(downloads_dir, args.output))
+            exit(1)
         else:
             logger.error("Unsupported URL format. Please provide a valid DASH (.mpd), HLS (.m3u8), or ISM (.ism) URL.")
             exit(1)
