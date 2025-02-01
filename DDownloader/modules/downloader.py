@@ -65,8 +65,6 @@ class DOWNLOADER:
         command = [
             self.binary_path,
             f'"{self.manifest_url}"',
-            '--select-video', 'BEST',
-            '--select-audio', 'BEST',
             '-mt',
             '-M', 'format=mp4',
             '--save-dir', '"downloads"',
