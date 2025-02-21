@@ -51,3 +51,6 @@ coverage.xml
 # Configuration files
 *.cfg
 *.ini
+pip.sh
+DDownloader/bin/*
+downloads/*
