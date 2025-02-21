@@ -61,15 +61,16 @@ class DOWNLOADER:
 # =========================================================================================================== #
 
     def _build_command(self):
-        self.binary_path = self._get_binary_path("N_m3u8DL-RE")
         command = [
-            self.binary_path,
+            self._get_binary_path("N_m3u8DL-RE"),
             f'"{self.manifest_url}"',
             '-mt',
             '-M', 'format=mp4',
             '--save-dir', '"downloads"',
             '--tmp-dir', '"downloads"',
             '--del-after-done',
+            '--decryption-engine', '"FFMPEG"',
+            '--decryption-binary-path', f'"{self._get_binary_path("ffmpeg")}"',
             '--save-name', f'"{self.output_name}"'
         ]
 

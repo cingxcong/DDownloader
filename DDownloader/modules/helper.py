@@ -92,52 +92,89 @@ def detect_platform():
 
 def get_media_info(file_path):
     try:
-        logger.info(f"Parsing media file: {file_path}")
+        logger.info(f"📂 Parsing media file: {file_path}")
         media_info = MediaInfo.parse(file_path)
-        result = {"file_path": file_path, "tracks": []}
+
+        result = {
+            "file_path": file_path,
+            "tracks": [],
+            "container": None,
+            "file_size": None,
+            "duration": None,
+            "bit_rate": None,
+        }
 
         for track in media_info.tracks:
             track_info = {"track_type": track.track_type}
 
-            if track.track_type == "Video":
-                track_info.update({
-                    "codec": track.codec,
-                    "width": track.width,
-                    "height": track.height,
-                    "frame_rate": track.frame_rate,
-                    "bit_rate": track.bit_rate,
-                    "duration": track.duration,
-                    "aspect_ratio": track.display_aspect_ratio,
+            if track.track_type == "General":
+                result.update({
+                    "container": getattr(track, "format", None),
+                    "file_size": getattr(track, "file_size", None),
+                    "duration": getattr(track, "duration", None),
+                    "bit_rate": getattr(track, "overall_bit_rate", None),
+                    "title": getattr(track, "title", None),
+                    "encoded_application": getattr(track, "encoded_application", None),
+                    "encoded_library": getattr(track, "encoded_library", None),
+                    "writing_library": getattr(track, "writing_library", None),
+                    "file_creation_date": getattr(track, "file_created_date", None),
                 })
+
+            elif track.track_type == "Video":
+                track_info.update({
+                    "codec": getattr(track, "codec_id", getattr(track, "format", None)),
+                    "codec_profile": getattr(track, "format_profile", None),
+                    "width": getattr(track, "width", None),
+                    "height": getattr(track, "height", None),
+                    "frame_rate": getattr(track, "frame_rate", None),
+                    "bit_rate": getattr(track, "bit_rate", None),
+                    "duration": getattr(track, "duration", None),
+                    "aspect_ratio": getattr(track, "display_aspect_ratio", None),
+                    "hdr_format": getattr(track, "hdr_format", None),
+                    "bit_depth": getattr(track, "bit_depth", None),
+                    "color_space": getattr(track, "colour_primaries", None),
+                    "color_range": getattr(track, "colour_range", None),
+                    "color_transfer": getattr(track, "transfer_characteristics", None),
+                    "chroma_subsampling": getattr(track, "chroma_subsampling", None),
+                })
+
             elif track.track_type == "Audio":
                 track_info.update({
-                    "codec": track.codec,
-                    "channels": track.channel_s,
-                    "sample_rate": track.sampling_rate,
-                    "bit_rate": track.bit_rate,
-                    "duration": track.duration,
-                    "language": track.language,
+                    "codec": getattr(track, "codec_id", getattr(track, "format", None)),
+                    "codec_profile": getattr(track, "format_profile", None),
+                    "channels": getattr(track, "channel_s", None),
+                    "sample_rate": getattr(track, "sampling_rate", None),
+                    "bit_rate": getattr(track, "bit_rate", None),
+                    "duration": getattr(track, "duration", None),
+                    "language": getattr(track, "language", "Unknown"),
+                    "compression_mode": getattr(track, "compression_mode", None),
+                    "bit_depth": getattr(track, "bit_depth", None),
                 })
+
             elif track.track_type == "Text":
                 track_info.update({
-                    "language": track.language,
-                    "format": track.format,
+                    "format": getattr(track, "format", None),
+                    "language": getattr(track, "language", "Unknown"),
+                    "default": getattr(track, "default", None),
+                    "forced": getattr(track, "forced", None),
+                    "format_profile": getattr(track, "format_profile", None),
                 })
-            elif track.track_type == "General":
+
+            elif track.track_type == "Chapters":
                 track_info.update({
-                    "file_size": track.file_size,
-                    "format": track.format,
-                    "duration": track.duration,
-                    "overall_bit_rate": track.overall_bit_rate,
+                    "title": getattr(track, "title", None),
+                    "chapter_count": getattr(track, "part_count", None),
                 })
 
-            result["tracks"].append(track_info)
+            if any(value is not None for value in track_info.values()):  # Avoid empty entries
+                result["tracks"].append(track_info)
 
-        logger.info(f"Successfully extracted media information for: {file_path}")
+        logger.info(f"✅ Successfully extracted media info for: {file_path}")
         return result
 
     except Exception as e:
-        logger.error(f"Error occurred while parsing media file '{file_path}': {e}")
+        logger.error(f"❌ Error parsing media file '{file_path}': {e}")
         return None
+
     
 # =========================================================================================================== #
