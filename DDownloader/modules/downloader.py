@@ -29,6 +29,8 @@ class DOWNLOADER:
             binary_name = 'N_m3u8DL-RE.exe' if platform.system() == 'Windows' else 'N_m3u8DL-RE'
         elif binary_type == 'ffmpeg':
             binary_name = 'ffmpeg.exe' if platform.system() == 'Windows' else 'ffmpeg'
+        elif binary_type == 'yt-dlp':
+            binary_name = 'yt-dlp.exe' if platform.system() == 'Windows' else 'yt-dlp'
         else:
             raise ValueError(f"Unknown binary type: {binary_type}")
 
@@ -105,7 +107,7 @@ class DOWNLOADER:
 
 # =========================================================================================================== #
 
-    def re_encode_content(self, input_file, quality, codec="libx265", crf=20, preset="medium", audio_bitrate="256k"):
+    def re_encode_content(self, input_file, quality, codec="libx265", crf=23, preset="superfast", audio_bitrate="256k", fps=60):
         resolutions = {
             "HD": "1280:720",
             "FHD": "1920:1080",
@@ -128,22 +130,26 @@ class DOWNLOADER:
 
         self.binary_path = self._get_binary_path("ffmpeg")
 
-        logger.info(f"Re-encoding {input_file} to {quality} ({resolution}) using codec {codec}...")
+        logger.info(f"Re-encoding {input_file} to {quality} ({resolution}) at {fps} FPS using codec {codec}...")
         logger.info(f"Output file: {output_file}")
 
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-        # Build the ffmpeg command
+        # Build the ffmpeg command with multi-threading & FPS increase
         command = [
             self.binary_path,
             "-i", f"\"{input_file}\"",
-            "-vf", f"scale={resolution}",
+            "-r", str(fps),  # Increase FPS
+            "-vf", f"scale={resolution}:flags=lanczos,unsharp=5:5:1.0:5:5:0.0,hqdn3d=1.5:1.5:6:6",  # Scaling + Sharpening + Denoising
             "-c:v", codec,
-            "-crf", str(crf),
+            "-b:v", "25M",  # Video bitrate set to 25 Mbps for better quality
+            "-crf", str(crf),  # CRF still included for quality control
             "-preset", preset,
+            "-threads", "0",  # Enables multi-threading (uses all available CPU cores)
             "-c:a", "aac",
             "-b:a", audio_bitrate,
             "-movflags", "+faststart",
+            "-pix_fmt", "yuv444p",  # Ensures compatibility
             f"\"{output_file}\""
         ]
 
@@ -152,7 +158,7 @@ class DOWNLOADER:
 
         # Check if output file exists to confirm success
         if os.path.isfile(output_file):
-            logger.info(f"Re-encoding to {quality} completed successfully. Output saved to: {output_file}")
+            logger.info(f"Re-encoding to {quality} at {fps} FPS completed successfully. Output saved to: {output_file}")
             return output_file
         else:
             logger.error(f"Re-encoding failed. Output file not created: {output_file}")
@@ -200,3 +206,86 @@ class DOWNLOADER:
 
         except requests.exceptions.RequestException as e:
             print(f"Error during download: {e}")
+            
+# =========================================================================================================== #
+
+    def youtube_downloader(self, url, output_file, download_type="mp4", playlist=False):
+        """
+        Download a video, audio, or playlist from YouTube using yt-dlp.
+
+        Args:
+            url (str): The YouTube video or playlist URL.
+            output_file (str): The output file path to save the video or audio.
+            download_type (str): The type of download ("mp4" for video, "mp3" for audio).
+            playlist (bool): Whether the URL is a playlist.
+        """
+        try:
+            # Get the yt-dlp binary path
+            yt_dlp_path = self._get_binary_path("yt-dlp")
+
+            # Determine the output file extension based on download type
+            if download_type == "mp3":
+                output_file = os.path.splitext(output_file)[0] + ".mp3"
+            elif download_type == "mp4":
+                output_file = os.path.splitext(output_file)[0] + ".mp4"
+            else:
+                logger.error(Fore.RED + f"Invalid download type: {download_type}. Use 'mp4' or 'mp3'." + Fore.RESET)
+                return
+
+            # Build the yt-dlp command
+            command = [
+                yt_dlp_path,
+                "-o", f"\"{output_file}\"",  # Output file
+                "--no-check-certificate",  # Bypass certificate verification
+                "--extractor-args", "youtube:player_client=android",  # Force a specific extractor
+            ]
+
+            # Add playlist-specific options if the URL is a playlist
+            if playlist:
+                command.extend([
+                    "--yes-playlist",  # Force downloading the playlist
+                    "--output", f"\"{output_file}/%(playlist_index)s - %(title)s.%(ext)s\"",  # Organize files in a folder
+                ])
+            else:
+                command.extend([
+                    "--no-playlist",  # Ignore playlists if the URL is a single video
+                ])
+
+            # Add audio extraction options if downloading MP3
+            if download_type == "mp3":
+                command.extend([
+                    "--extract-audio",  # Extract audio
+                    "--audio-format", "mp3",  # Convert to MP3
+                    "--audio-quality", "0",  # Best quality
+                ])
+            else:
+                # For MP4, download the best video and audio formats and merge them
+                command.extend([
+                    "-f", "bv*+ba/b",  # Download best video + best audio, or fallback to best combined format
+                    "--merge-output-format", "mp4",  # Merge into MP4
+                ])
+
+            # Add the YouTube URL
+            command.append(url)
+
+            # Execute the command
+            self._execute_command(command)
+
+            # Check if output file(s) exist to confirm success
+            if playlist:
+                if os.path.exists(output_file) and os.listdir(output_file):
+                    logger.info(f"Playlist download completed successfully. Files saved to: {output_file}")
+                    return output_file
+                else:
+                    logger.error(f"Playlist download failed. No files were created in: {output_file}")
+                    return None
+            else:
+                if os.path.isfile(output_file):
+                    logger.info(f"Download from YouTube completed successfully. Output saved to: {output_file}")
+                    return output_file
+                else:
+                    logger.error(f"Download from YouTube failed. Output file not created: {output_file}")
+                    return None
+
+        except Exception as e:
+            logger.error(Fore.RED + f"An unexpected error occurred: {e}" + Fore.RESET)

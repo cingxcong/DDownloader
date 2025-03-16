@@ -72,7 +72,6 @@ def main():
 
     downloader = DOWNLOADER()
 
-    # Handle downloading if URL is provided
     if args.url:
         if re.search(r"\.mpd\b", args.url, re.IGNORECASE):
             logger.info("DASH stream detected. Initializing DASH downloader...")
@@ -85,8 +84,19 @@ def main():
             print(Fore.RED + "═" * 100 + Fore.RESET)
             downloader.normal_downloader(args.url, os.path.join(downloads_dir, args.output))
             exit(1)
+        elif re.search(r"(youtube\.com|youtu\.be)", args.url, re.IGNORECASE):
+            logger.info("YouTube URL detected. Initializing YouTube downloader...")
+            print(Fore.RED + "═" * 100 + Fore.RESET)
+            is_playlist = "list=" in args.url
+            downloader.youtube_downloader(
+                url=args.url,
+                output_file=os.path.join(downloads_dir, args.output),
+                download_type="mp4",
+                playlist=is_playlist
+            )
+            exit(0)
         else:
-            logger.error("Unsupported URL format. Please provide a valid DASH (.mpd), HLS (.m3u8), or ISM (.ism) URL.")
+            logger.error("Unsupported URL format. Please provide a valid DASH (.mpd), HLS (.m3u8), ISM (.ism), or YouTube URL.")
             exit(1)
 
         downloader.manifest_url = args.url
