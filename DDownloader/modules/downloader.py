@@ -34,13 +34,24 @@ class DOWNLOADER:
         else:
             raise ValueError(f"Unknown binary type: {binary_type}")
 
+        # First check project's bin directory
         binary_path = os.path.join(bin_dir, binary_name)
+        
+        # For ffmpeg on Linux, fall back to system path if not found in project
+        if binary_type == 'ffmpeg' and platform.system() == 'Linux' and not os.path.isfile(binary_path):
+            system_ffmpeg = '/usr/bin/ffmpeg'
+            if os.path.isfile(system_ffmpeg):
+                binary_path = system_ffmpeg
+                logger.info(Fore.YELLOW + f"Using system ffmpeg at: {binary_path}" + Fore.RESET)
+            else:
+                logger.error(f"ffmpeg not found in project bin or system path")
+                raise FileNotFoundError(f"ffmpeg not found in project bin or system path")
 
         if not os.path.isfile(binary_path):
             logger.error(f"Binary not found: {binary_path}")
             raise FileNotFoundError(f"Binary not found: {binary_path}")
 
-        if platform.system() == 'Linux':
+        if platform.system() == 'Linux' and not binary_path.startswith('/usr/bin/'):
             chmod_command = ['chmod', '+x', binary_path]
             try:
                 subprocess.run(chmod_command, check=True)
@@ -238,6 +249,7 @@ class DOWNLOADER:
                 "-o", f"\"{output_file}\"",  # Output file
                 "--no-check-certificate",  # Bypass certificate verification
                 "--extractor-args", "youtube:player_client=android",  # Force a specific extractor
+                "--ignore-errors",  # Ignore errors and continue downloading
             ]
 
             # Add playlist-specific options if the URL is a playlist
