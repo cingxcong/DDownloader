@@ -71,6 +71,7 @@ def main():
         exit(1)
 
     downloader = DOWNLOADER()
+    downloader.auto_select = args.auto_select
 
     if args.url:
         if re.search(r"\.mpd\b", args.url, re.IGNORECASE):
@@ -121,6 +122,10 @@ def main():
             logger.info("Decryption keys:")
             for key in downloader.decryption_keys:
                 logger.info(f"  - {key}")
+            print(Fore.RED + "═" * 100 + Fore.RESET + "\n")
+            
+        if downloader.auto_select:
+            logger.info("Auto-select enabled - will choose best quality automatically")
             print(Fore.RED + "═" * 100 + Fore.RESET + "\n")
 
         try:

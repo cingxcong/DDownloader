@@ -17,6 +17,7 @@ class DOWNLOADER:
         self.decryption_keys = []
         self.headers = []
         self.binary_path = None
+        self.auto_select = False
 
 # =========================================================================================================== #
 
@@ -94,6 +95,9 @@ class DOWNLOADER:
             if not self.proxy.startswith("http://"):
                 self.proxy = f"http://{self.proxy}"
             command.extend(['--custom-proxy', f'"{self.proxy}"'])
+            
+        if self.auto_select:
+            command.extend(['--auto-select'])
 
         for header in self.headers:
             command.extend(['-H', f'"{header}"'])
