@@ -35,7 +35,7 @@ _DDownloader is a powerful Python-based tool and library designed to download an
 	downloader.manifest_url = "https://example.com/path/to/manifest"  # DASH, HLS, or ISM manifest URL
 	downloader.output_name = "output.mp4"  # Desired output file name
 	downloader.decryption_keys = ["12345:678910"]  # Provide decryption keys if needed
-	downloader.download()  # Start the downloading and decryption process
+	downloader.drm_downloader()  # Start the downloading and decryption process
 	```
  
 - Extract Media Information:
